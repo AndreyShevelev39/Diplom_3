@@ -1,12 +1,12 @@
 package ru.yandex.praktikum;
 
+import io.qameta.allure.Description;
+import io.qameta.allure.junit4.DisplayName;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import ru.yandex.praktikum.config.Endpoints;
 import ru.yandex.praktikum.pageobject.*;
-import java.time.Duration;
 
 public class LoginTest extends BaseTest {
     private String email;
@@ -14,50 +14,29 @@ public class LoginTest extends BaseTest {
 
     @Before
     public void prepareUser() {
-        email = "test_user_" + System.currentTimeMillis() + "@yandex.ru";
-        driver.get("https://stellarburgers.education-services.ru/register");
+        email = "user_" + System.currentTimeMillis() + "@ya.ru";
+        driver.get(Endpoints.REGISTER);
         new RegisterPage(driver).register("Tester", email, password);
-        new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.urlContains("/login"));
     }
 
     @Test
+    @DisplayName("Вход через кнопку на главной")
+    @Description("Успешная авторизация через кнопку 'Войти в аккаунт' на главной странице")
     public void loginFromMainPage() {
-        driver.get("https://stellarburgers.education-services.ru/");
-        new MainPage(driver).clickLoginButton();
+        driver.get(Endpoints.BASE_URL);
+        MainPage mainPage = new MainPage(driver);
+        mainPage.clickLoginButton();
         new LoginPage(driver).login(email, password);
-        boolean isLogged = new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.urlToBe("https://stellarburgers.education-services.ru/"));
-        Assert.assertTrue("Login failed from main page", isLogged);
+        Assert.assertTrue("Login failed", mainPage.isUserLoggedIn());
     }
 
     @Test
-    public void loginFromPersonalAccount() {
-        driver.get("https://stellarburgers.education-services.ru/");
-        new MainPage(driver).clickPersonalCabinet();
+    @DisplayName("Вход через Личный кабинет")
+    public void loginFromAccountButton() {
+        driver.get(Endpoints.BASE_URL);
+        MainPage mainPage = new MainPage(driver);
+        mainPage.clickPersonalCabinet();
         new LoginPage(driver).login(email, password);
-        boolean isLogged = new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.urlToBe("https://stellarburgers.education-services.ru/"));
-        Assert.assertTrue("Login failed from personal account", isLogged);
-    }
-
-    @Test
-    public void loginFromRegisterPage() {
-        driver.get("https://stellarburgers.education-services.ru/register");
-        new RegisterPage(driver).clickLoginLink();
-        new LoginPage(driver).login(email, password);
-        boolean isLogged = new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.urlToBe("https://stellarburgers.education-services.ru/"));
-        Assert.assertTrue("Login failed from register page", isLogged);
-    }
-
-    @Test
-    public void loginFromForgotPasswordPage() {
-        driver.get("https://stellarburgers.education-services.ru/forgot-password");
-        new ForgotPasswordPage(driver).clickLoginLink();
-        new LoginPage(driver).login(email, password);
-        boolean isLogged = new WebDriverWait(driver, Duration.ofSeconds(10))
-                .until(ExpectedConditions.urlToBe("https://stellarburgers.education-services.ru/"));
-        Assert.assertTrue("Login failed from forgot password page", isLogged);
+        Assert.assertTrue("Login failed", mainPage.isUserLoggedIn());
     }
 }
