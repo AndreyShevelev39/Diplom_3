@@ -1,10 +1,8 @@
 package ru.yandex.praktikum.pageobject;
 
 import io.qameta.allure.Step;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.*;
 import java.time.Duration;
 
 public class MainPage {
@@ -18,51 +16,32 @@ public class MainPage {
 
     public MainPage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    @Step("Дождаться загрузки конструктора")
-    public void waitForLoad() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(constructorHeader));
-    }
+    @Step("Дождаться загрузки главной")
+    public void waitForLoad() { wait.until(ExpectedConditions.visibilityOfElementLocated(constructorHeader)); }
 
-    @Step("Нажать кнопку входа")
+    @Step("Нажать 'Войти в аккаунт'")
     public void clickLoginButton() { wait.until(ExpectedConditions.elementToBeClickable(loginButton)).click(); }
 
     @Step("Нажать 'Личный Кабинет'")
     public void clickPersonalCabinet() { wait.until(ExpectedConditions.elementToBeClickable(personalCabinetButton)).click(); }
 
-    @Step("Перейти к разделу 'Соусы'")
-    public void clickSauceTab() {
-        driver.findElement(By.xpath("(//div[contains(@class, 'tab_tab')])[2]")).click();
+    @Step("Перейти к разделу конструктора {index}")
+    public void clickTab(int index) {
+        driver.findElement(By.xpath("(//div[contains(@class, 'tab_tab')])[" + index + "]")).click();
     }
 
-    @Step("Перейти к разделу 'Начинки'")
-    public void clickFillingTab() {
-        driver.findElement(By.xpath("(//div[contains(@class, 'tab_tab')])[3]")).click();
+    @Step("Проверить активность таба {index}")
+    public boolean isTabActive(int index) {
+        By locator = By.xpath("(//div[contains(@class, 'tab_tab')])[" + index + "]");
+        return wait.until(ExpectedConditions.attributeContains(locator, "class", "tab_tab_type_current"));
     }
 
-    @Step("Перейти к разделу 'Булки'")
-    public void clickBunTab() {
-        driver.findElement(By.xpath("(//div[contains(@class, 'tab_tab')])[1]")).click();
-    }
-
-    @Step("Проверить активность таба по индексу {index}")
-    public boolean isTabSelectedByIndex(int index) {
-        By tabLocator = By.xpath("(//div[contains(@class, 'tab_tab')])[" + index + "]");
-
-        try {
-            return wait.until(ExpectedConditions.attributeContains(tabLocator, "class", "tab_tab_type_current"));
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
+    @Step("Проверить авторизацию")
     public boolean isUserLoggedIn() {
-        try {
-            return wait.until(ExpectedConditions.urlToBe("https://stellarburgers.education-services.ru/")).booleanValue();
-        } catch (Exception e) {
-            return false;
-        }
+        try { return wait.until(ExpectedConditions.visibilityOfElementLocated(checkoutButton)).isDisplayed(); }
+        catch (Exception e) { return false; }
     }
 }

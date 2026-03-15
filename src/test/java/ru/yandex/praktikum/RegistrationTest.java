@@ -13,28 +13,19 @@ public class RegistrationTest extends BaseTest {
     @Test
     @DisplayName("Успешная регистрация")
     @Description("Проверка перехода на страницу логина после успешной регистрации")
-    public void successfulRegistrationTest() {
+    public void successRegTest() {
         driver.get(Endpoints.REGISTER);
-        RegisterPage registerPage = new RegisterPage(driver);
-        String email = "ivan_" + System.currentTimeMillis() + "@yandex.ru";
-
-        registerPage.register("Ivan", email, "password123");
-
-        LoginPage loginPage = new LoginPage(driver);
-        Assert.assertTrue("Не отображается кнопка входа после регистрации",
-                loginPage.isLoginButtonDisplayed());
+        new RegisterPage(driver).register("Ivan", "ivan_" + System.currentTimeMillis() + "@ya.ru", "password123");
+        Assert.assertTrue(new LoginPage(driver).isLoginButtonDisplayed());
     }
 
     @Test
-    @DisplayName("Ошибка регистрации: короткий пароль")
+    @DisplayName("Ошибка: короткий пароль")
     @Description("Проверка появления ошибки при вводе пароля меньше 6 символов")
-    public void shortPasswordErrorTest() {
+    public void shortPassRegTest() {
         driver.get(Endpoints.REGISTER);
-        RegisterPage registerPage = new RegisterPage(driver);
-
-        registerPage.register("Ivan", "test@ya.ru", "123");
-
-        Assert.assertTrue("Ошибка некорректного пароля не появилась",
-                registerPage.isPasswordErrorDisplayed());
+        RegisterPage regPage = new RegisterPage(driver);
+        regPage.register("Ivan", "test@ya.ru", "123");
+        Assert.assertTrue(regPage.isPasswordErrorDisplayed());
     }
 }
